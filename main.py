@@ -43,10 +43,10 @@ input_font = pygame.font.Font(None, 35)
 input_text = ""
 
 # Load checkmark image
-checkmark_img = pygame.image.load("checkmark_img.png")
+checkmark_img = pygame.image.load("resources/checkmark_img.png")
 checkmark_img = pygame.transform.scale(checkmark_img, (30, 30))
 
-not_checked_img = pygame.image.load("not_checked_img.png")
+not_checked_img = pygame.image.load("resources/not_checked_img.png")
 not_checked_img = pygame.transform.scale(not_checked_img, (30, 30))
 
 
