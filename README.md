@@ -1,4 +1,4 @@
-# Todo Dopamine Tricking Thing V0.2
+# Todo Dopamine Tricking Thing V0.3
 
 Just did this in my spare time.
 
@@ -10,3 +10,8 @@ like a to do list but with gambling so I am incentivised to do the things i have
 - You can tick things off, and 'collect packs'
 - 1 small pack for each task, one large pack when they are all done
 - So far changing the list and a few basic pages are all that exist
+
+## v0.3 Features
+- Added Json writing and reading for packs and tasks
+- Added reset button for tasks
+- Added more pages
