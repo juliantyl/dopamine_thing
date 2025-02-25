@@ -1,6 +1,7 @@
 import pygame
 import json
-from random import randint
+from random import randint, choice
+from loading import *
 
 # Initialize Pygame
 pygame.init()
@@ -78,6 +79,22 @@ legendary_image = pygame.transform.scale(legendary_image, (90, 90))
 ultra_image = pygame.image.load("resources/images/Ultra Rare.png")
 ultra_image = pygame.transform.scale(ultra_image, (90, 90))
 
+common_locked_image = pygame.image.load("resources/images/common_locked.png")
+common_locked_image = pygame.transform.scale(common_locked_image, (100, 100))
+
+uncommon_locked_image = pygame.image.load("resources/images/uncommon_locked.png")
+uncommon_locked_image = pygame.transform.scale(uncommon_locked_image, (100, 100))
+
+rare_locked_image = pygame.image.load("resources/images/rare_locked.png")
+rare_locked_image = pygame.transform.scale(rare_locked_image, (100, 100))
+
+legendary_locked_image = pygame.image.load("resources/images/legendary_locked.png")
+legendary_locked_image = pygame.transform.scale(legendary_locked_image, (100, 100))
+
+ultra_locked_image = pygame.image.load("resources/images/ultra_locked.png")
+ultra_locked_image = pygame.transform.scale(ultra_locked_image, (100, 100))
+
+
 def json_init(path):
     with open(path, "r") as file:
         data = json.load(file)
@@ -88,10 +105,22 @@ def json_save(path, data):
     with open(path, "w") as file:
         json.dump(data, file, indent=4)
 
+def json_save_collection(path, data):
+    for item in data:
+        item["loaded"] = None
+    with open(path, "w") as file:
+        json.dump(data, file, indent=4)
 
 def json_save_all():
     json_save("resources/data/tasks.json", tasks)
     json_save("resources/data/packs.json", packs)
+
+
+    json_save_collection("resources/data/commons.json", commons)
+    json_save_collection("resources/data/uncommons.json", uncommons)
+    json_save_collection("resources/data/rares.json", rares)
+    json_save_collection("resources/data/legendaries.json", legendaries)
+    json_save_collection("resources/data/ultra_rares.json", ultra_rares)
 
 
 def daily_reset():
@@ -102,6 +131,12 @@ def daily_reset():
 
 tasks = json_init("resources/data/tasks.json")
 packs = json_init("resources/data/packs.json")
+
+commons = load_commons()
+uncommons = load_uncommons()
+rares = load_rares()
+legendaries = load_legendaries()
+ultra_rares = load_ultra_rares()
 
 
 def draw_text(text, font, color, x, y):
@@ -192,14 +227,138 @@ def play_screen():
 
 def collection_screen():
     """Collection Screen Loop"""
+    total_scroll = 0
+    SCROLL_SPEED = 50
+    icon_size = 100
+    y_offset = 200
+    col = 0
+
+    common_title_y = 125
+    common_rects = []
+    common_count = 0
+    for i, item in enumerate(commons):
+        row = i % 5
+        col = i // 5
+        common_rects.append((pygame.rect.Rect((WIDTH // 6) * (row + 1) - icon_size//2, (icon_size + 10)*col + y_offset, icon_size, icon_size), item))
+        if item["acquired"]:
+            common_count += 1
+
+    # account for all and name of next
+    y_offset += (icon_size + 10)*col + 125
+    uncommon_title_y = y_offset
+    y_offset += 75
+
+    uncommon_rects = []
+    uncommon_count = 0
+    for i,item in enumerate(uncommons):
+        row = i % 5
+        col = i // 5
+        uncommon_rects.append((
+            pygame.rect.Rect((WIDTH // 6) * (row + 1) - icon_size // 2, (icon_size + 10) * col + y_offset, icon_size,
+                             icon_size), item))
+        if item["acquired"]:
+            uncommon_count += 1
+
+    y_offset += (icon_size + 10)*col + 125
+    rare_title_y = y_offset
+    y_offset += 75
+
+    rare_rects = []
+    rare_count = 0
+    for i,item in enumerate(rares):
+        row = i % 5
+        col = i // 5
+        rare_rects.append((
+            pygame.rect.Rect((WIDTH // 6) * (row + 1) - icon_size // 2, (icon_size + 10) * col + y_offset, icon_size,
+                             icon_size), item))
+        if item["acquired"]:
+            rare_count += 1
+
+    y_offset += (icon_size + 10) * col + 125
+    legendary_title_y = y_offset
+    y_offset += 75
+
+    legendary_rects = []
+    legendary_count = 0
+    for i, item in enumerate(legendaries):
+        row = i % 5
+        col = i // 5
+        legendary_rects.append((
+            pygame.rect.Rect((WIDTH // 6) * (row + 1) - icon_size // 2, (icon_size + 10) * col + y_offset, icon_size,
+                             icon_size), item))
+        if item["acquired"]:
+            legendary_count += 1
+    y_offset += (icon_size + 10) * col + 125
+    ultra_title_y = y_offset
+    y_offset += 75
+
+    ultra_rects = []
+    ultra_count = 0
+    for i, item in enumerate(ultra_rares):
+        row = i % 5
+        col = i // 5
+        ultra_rects.append((
+            pygame.rect.Rect((WIDTH // 6) * (row + 1) - icon_size // 2, (icon_size + 10) * col + y_offset, icon_size,
+                             icon_size), item))
+        if item["acquired"]:
+            ultra_count += 1
+
+
     running = True
     while running:
+
         screen.fill(BACKGROUND_COLOUR)
-        draw_text("Collection Screen", font, CRIMSON, WIDTH // 2, 20)
+
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
-
         back_color = DARK_PURPLE if back_button.collidepoint(mouse_x, mouse_y) else PURPLE
+
+        # drawing commons
+        for rec in common_rects:
+            pygame.draw.rect(screen, WHITE, rec[0])
+            if not rec[1]["acquired"]:
+                screen.blit(common_locked_image, (rec[0].x, rec[0].y))
+            else:
+                screen.blit(rec[1]["loaded"], (rec[0].x, rec[0].y))
+        for rec in uncommon_rects:
+            pygame.draw.rect(screen, GREEN, rec[0])
+            if not rec[1]["acquired"]:
+                screen.blit(uncommon_locked_image, (rec[0].x, rec[0].y))
+            else:
+                screen.blit(rec[1]["loaded"], (rec[0].x, rec[0].y))
+        for rec in rare_rects:
+            pygame.draw.rect(screen, BLUE, rec[0])
+            if not rec[1]["acquired"]:
+                screen.blit(rare_locked_image, (rec[0].x, rec[0].y))
+            else:
+                screen.blit(rec[1]["loaded"], (rec[0].x, rec[0].y))
+        for rec in legendary_rects:
+            pygame.draw.rect(screen, GOLD, rec[0])
+            if not rec[1]["acquired"]:
+                screen.blit(legendary_locked_image, (rec[0].x, rec[0].y))
+            else:
+                screen.blit(rec[1]["loaded"], (rec[0].x, rec[0].y))
+        for rec in ultra_rects:
+            pygame.draw.rect(screen, PINK, rec[0])
+            if not rec[1]["acquired"]:
+                screen.blit(ultra_locked_image, (rec[0].x, rec[0].y))
+            else:
+                screen.blit(rec[1]["loaded"], (rec[0].x, rec[0].y))
+
+        # draw titles
+        draw_text(f'Common ({common_count}/265)', font, BLACK, WIDTH // 2, common_title_y)
+        draw_text(f'Uncommon ({uncommon_count}/125)', font, BLACK, WIDTH // 2, uncommon_title_y)
+        draw_text(f'Rare ({rare_count}/70)', font, BLACK, WIDTH // 2, rare_title_y)
+        draw_text(f'Legendary ({legendary_count}/25)', font, BLACK, WIDTH // 2, legendary_title_y)
+        draw_text(f'Ultra Rare ({ultra_count}/15)', font, BLACK, WIDTH // 2, ultra_title_y)
+
+
+
+        # top and bottom bars
+        pygame.draw.rect(screen, BACKGROUND_COLOUR, pygame.rect.Rect(0,0,WIDTH, 100))
+        pygame.draw.rect(screen, BACKGROUND_COLOUR, pygame.rect.Rect(0,HEIGHT - 100,WIDTH, 100))
+
+        draw_text("Collection Screen", font, CRIMSON, WIDTH // 2, 20)
 
         pygame.draw.rect(screen, back_color, back_button)
         draw_text("Back", button_font, WHITE, 10 + back_width / 2, back_height / 2 - 2)
@@ -213,6 +372,47 @@ def collection_screen():
                 return
             if event.type == pygame.MOUSEBUTTONDOWN and back_button.collidepoint(mouse_x, mouse_y):
                 return
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 4:
+                if total_scroll >= 0:
+                    continue
+                total_scroll += SCROLL_SPEED
+                for rec in common_rects:
+                    rec[0].y += SCROLL_SPEED
+                for rec in uncommon_rects:
+                    rec[0].y += SCROLL_SPEED
+                for rec in rare_rects:
+                    rec[0].y += SCROLL_SPEED
+                for rec in legendary_rects:
+                    rec[0].y += SCROLL_SPEED
+                for rec in ultra_rects:
+                    rec[0].y += SCROLL_SPEED
+                # remember to update title positions too
+                common_title_y += SCROLL_SPEED
+                uncommon_title_y += SCROLL_SPEED
+                rare_title_y += SCROLL_SPEED
+                legendary_title_y += SCROLL_SPEED
+                ultra_title_y += SCROLL_SPEED
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 5:
+                if total_scroll <= -y_offset + 150:
+                    continue
+                total_scroll -= SCROLL_SPEED
+                for rec in common_rects:
+                    rec[0].y -= SCROLL_SPEED
+                for rec in uncommon_rects:
+                    rec[0].y -= SCROLL_SPEED
+                for rec in rare_rects:
+                    rec[0].y -= SCROLL_SPEED
+                for rec in legendary_rects:
+                    rec[0].y -= SCROLL_SPEED
+                for rec in ultra_rects:
+                    rec[0].y -= SCROLL_SPEED
+                # remember to update title positions too
+                common_title_y -= SCROLL_SPEED
+                uncommon_title_y -= SCROLL_SPEED
+                rare_title_y -= SCROLL_SPEED
+                legendary_title_y -= SCROLL_SPEED
+                ultra_title_y -= SCROLL_SPEED
+
 
         pygame.display.update()
 
@@ -264,11 +464,35 @@ def open_packs_screen():
 
         pygame.display.update()
 
+
+def calculate_result(init_speed, rarity_ls):
+    return
+
+
+def pick_and_unlock(rarity):
+    if rarity == "X":
+        target_ls = ultra_rares
+    elif rarity == "L":
+        target_ls = legendaries
+    elif rarity == "R":
+        target_ls = rares
+    elif rarity == "U":
+        target_ls = uncommons
+    else:
+        target_ls = commons
+
+    random_item = choice(target_ls)
+    random_item["acquired"] = True
+    random_item["count"] += 1
+    return random_item
+
+
 def pack_opening(is_rare):
     """Ideally, the pack is pre-opened as in the result is pre-calculated so if the user quits,
     they don't lose the result"""
     opening = True
     speed = randint(45, 80)
+    init_speed = speed
     box_list = []
     box_rarity_list = []
     for i in range(150):
@@ -313,6 +537,7 @@ def pack_opening(is_rare):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                calculate_result(box_rarity_list, init_speed)
                 pygame.quit()
                 json_save_all()
                 return
@@ -328,7 +553,6 @@ def pack_opening(is_rare):
         clock.tick(30)
 
     opened_pack = "C"
-    rarity_name = "Common"
     for i, box in enumerate(box_list):
         if box.x - 2 <= WIDTH // 2 < box.x + box.width + 2:
             print(f'Box: {i}, Rarity: {box_rarity_list[i]}')
@@ -350,12 +574,20 @@ def pack_opening(is_rare):
         rarity_name = "Ultra Rare"
         rarity_colour = PINK
 
+    unboxed_item = pick_and_unlock(opened_pack)
 
     running = True
     while running:
         screen.fill(BACKGROUND_COLOUR)
         draw_text("Pack Opened", font, CRIMSON, WIDTH // 2, 20)
         draw_text(f'It\'s {rarity_name}!', font, rarity_colour, WIDTH // 2, 100)
+
+        # load image
+        image = pygame.image.load(unboxed_item["img_path"])
+        image = pygame.transform.scale(image, (150, 150))
+        screen.blit(image, (WIDTH // 2 - 75, 180))
+
+        draw_text(f'{unboxed_item["name"]}!', font, BLACK, WIDTH // 2, 340)
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
