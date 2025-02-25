@@ -63,6 +63,21 @@ small_pack_image = pygame.transform.scale(small_pack_image, (90, 90))
 rare_pack_image = pygame.image.load("resources/images/rare_pack.png")
 rare_pack_image = pygame.transform.scale(rare_pack_image, (90, 90))
 
+common_image = pygame.image.load("resources/images/Common.png")
+common_image = pygame.transform.scale(common_image, (90, 90))
+
+uncommon_image = pygame.image.load("resources/images/Uncommon.png")
+uncommon_image = pygame.transform.scale(uncommon_image, (90, 90))
+
+rare_image = pygame.image.load("resources/images/Rare.png")
+rare_image = pygame.transform.scale(rare_image, (90, 90))
+
+legendary_image = pygame.image.load("resources/images/Legendary.png")
+legendary_image = pygame.transform.scale(legendary_image, (90, 90))
+
+ultra_image = pygame.image.load("resources/images/Ultra Rare.png")
+ultra_image = pygame.transform.scale(ultra_image, (90, 90))
+
 def json_init(path):
     with open(path, "r") as file:
         data = json.load(file)
@@ -282,17 +297,17 @@ def pack_opening(is_rare):
 
         for i, box in enumerate(box_list):
             if box_rarity_list[i] == "X":
-                box_colour = PINK
+                image = ultra_image
             elif box_rarity_list[i] == "L":
-                box_colour = GOLD
+                image = legendary_image
             elif box_rarity_list[i] == "R":
-                box_colour = BLUE
+                image = rare_image
             elif box_rarity_list[i] == "U":
-                box_colour = GREEN
+                image = uncommon_image
             else:
-                box_colour = WHITE
-            pygame.draw.rect(screen, box_colour, box)
-            draw_text(f'{i}', font, BLACK, box.x + box.width//2, 220)
+                image = common_image
+            pygame.draw.rect(screen, WHITE, box)
+            screen.blit(image, (box.x, box.y))
 
         pygame.draw.line(screen, BLACK, (WIDTH//2, 180), (WIDTH//2, 310), 4)
 
