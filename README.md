@@ -1,4 +1,4 @@
-# Todo Dopamine Tricking Thing V0.51
+# Todo Dopamine Tricking Thing V0.7
 
 Just did this in my spare time.
 
@@ -27,3 +27,7 @@ like a to do list but with gambling so I am incentivised to do the things i have
 
 ## v0.51 Features
 - Added images for case spinner
+
+## v0.7 Features
+- Added the collections page and all relating json stores for collection
+- All placeholder values for now, but should be working with scrolling
