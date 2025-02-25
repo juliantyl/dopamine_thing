@@ -1,4 +1,4 @@
-# Todo Dopamine Tricking Thing V0.3
+# Todo Dopamine Tricking Thing V0.5
 
 Just did this in my spare time.
 
@@ -15,3 +15,12 @@ like a to do list but with gambling so I am incentivised to do the things i have
 - Added Json writing and reading for packs and tasks
 - Added reset button for tasks
 - Added more pages
+
+## v0.35 Features
+- Updated icons and background
+- Added icons for packs
+- Added pack opening buttons
+
+## v0.5 Features
+- Added csgo case spinner with rarities differentiated
+- Keeps track of which case is selected by the spinner
