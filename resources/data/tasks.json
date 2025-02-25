@@ -6,8 +6,8 @@
     },
     {
         "task": "Finish homework",
-        "checked": false,
-        "collected": false
+        "checked": true,
+        "collected": true
     },
     {
         "task": "Call mom",

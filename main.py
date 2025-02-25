@@ -93,19 +93,24 @@ def play_screen():
 
     running = True
     while running:
-        screen.fill(WHITE)
+        screen.fill(BACKGROUND_COLOUR)
+        mouse_x, mouse_y = pygame.mouse.get_pos()
 
         # Draw title
-        draw_text("To-Do List", font, BLUE, WIDTH // 2, 20)
+        draw_text("To-Do List", font, CRIMSON, WIDTH // 2, 20)
 
-        mouse_x, mouse_y = pygame.mouse.get_pos()
+        # Back Button
+        back_color = DARK_PURPLE if back_button.collidepoint(mouse_x, mouse_y) else PURPLE
+        pygame.draw.rect(screen, back_color, back_button)
+        draw_text("Back", button_font, WHITE, 10 + back_width / 2, back_height / 2 - 2)
+
         collect_color = DARK_GREEN if collect_button.collidepoint(mouse_x, mouse_y) else GREEN
 
         # Draw tasks
         y_offset = 100
         uncollected = 0
         for i, dic in enumerate(tasks):
-            color = GRAY if dic["checked"] else BLACK  # Checked tasks are grayed out
+            color = GREEN if dic["checked"] else BLACK  # Checked tasks are grayed out
             if dic["checked"]:
                 screen.blit(checkmark_img, (50, y_offset))
             else:
@@ -130,7 +135,9 @@ def play_screen():
                 json_save_all()
                 return
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                return  # Go back to menu
+                return
+            if event.type == pygame.MOUSEBUTTONDOWN and back_button.collidepoint(pygame.mouse.get_pos()):
+                return
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if collect_button.collidepoint(mouse_x, mouse_y):
                     for i in range(len(tasks)):
