@@ -34,7 +34,6 @@ play_button = pygame.Rect((WIDTH // 2 - button_width // 2, 250), (button_width, 
 collection_button = pygame.Rect((WIDTH // 2 - button_width // 2, 350), (button_width, button_height))
 back_button = pygame.Rect((10, 10), (back_width, back_height))
 
-
 input_font = pygame.font.Font(None, 35)
 input_text = ""
 
@@ -56,6 +55,7 @@ def json_save(path, data):
     with open(path, "w") as file:
         json.dump(data, file, indent=4)
 
+
 def json_save_all():
     json_save("resources/data/tasks.json", tasks)
     json_save("resources/data/packs.json", packs)
@@ -63,6 +63,7 @@ def json_save_all():
 
 tasks = json_init("resources/data/tasks.json")
 packs = json_init("resources/data/packs.json")
+
 
 def draw_text(text, font, color, x, y):
     """Render text on screen."""
@@ -207,7 +208,6 @@ def main_menu():
 
     pygame.quit()
     json_save_all()
-
 
 
 # Run the menu
