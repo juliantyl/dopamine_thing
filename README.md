@@ -1,4 +1,4 @@
-# Todo Dopamine Tricking Thing V0.7
+# Todo Dopamine Tricking Thing V0.9
 
 Just did this in my spare time.
 
@@ -31,3 +31,11 @@ like a to do list but with gambling so I am incentivised to do the things i have
 ## v0.7 Features
 - Added the collections page and all relating json stores for collection
 - All placeholder values for now, but should be working with scrolling
+
+## v0.9 Features
+- Added the ability to inspect unlocked items in collection
+- Added functionality to initialise collection
+- Reconfigured some formatting
+- Added functionality to reset collection
+- Added failsafe mechanisms to calculate what box you wouldve gotten if shutdown during case opening
+- Added different drop rates for the rare case
