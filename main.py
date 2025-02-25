@@ -31,7 +31,10 @@ button_width, button_height = 200, 60
 back_width, back_height = 150, 46
 
 play_button = pygame.Rect((WIDTH // 2 - button_width // 2, 250), (button_width, button_height))
-collection_button = pygame.Rect((WIDTH // 2 - button_width // 2, 350), (button_width, button_height))
+collection_button = pygame.Rect((WIDTH // 2 - button_width // 2, 340), (button_width, button_height))
+open_packs_button = pygame.Rect((WIDTH // 2 - button_width // 2, 430), (button_width, button_height))
+reset_button = pygame.Rect((WIDTH // 2 - button_width // 2, 520), (button_width, button_height))
+reset_confirm_button = pygame.Rect((WIDTH // 2 - button_width // 2, 350), (button_width, button_height))
 back_button = pygame.Rect((10, 10), (back_width, back_height))
 
 input_font = pygame.font.Font(None, 35)
@@ -59,6 +62,12 @@ def json_save(path, data):
 def json_save_all():
     json_save("resources/data/tasks.json", tasks)
     json_save("resources/data/packs.json", packs)
+
+
+def daily_reset():
+    for task in tasks:
+        task["checked"] = False
+        task["collected"] = False
 
 
 tasks = json_init("resources/data/tasks.json")
@@ -101,7 +110,7 @@ def play_screen():
                 screen.blit(checkmark_img, (50, y_offset))
             else:
                 screen.blit(not_checked_img, (50, y_offset))
-            draw_text_left(f' {dic["task"]}', font, color, 50, y_offset)
+            draw_text_left(f'    {dic["task"]}', font, color, 50, y_offset)
             y_offset += 50
 
             if dic["checked"] and not dic["collected"]:
@@ -171,6 +180,67 @@ def collection_screen():
         pygame.display.update()
 
 
+def open_packs_screen():
+    """Packs Screen Loop"""
+    running = True
+    while running:
+        screen.fill(BACKGROUND_COLOUR)
+        draw_text("Open Packs", font, CRIMSON, WIDTH // 2, 20)
+
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        back_color = DARK_PURPLE if back_button.collidepoint(mouse_x, mouse_y) else PURPLE
+
+        pygame.draw.rect(screen, back_color, back_button)
+        draw_text("Back", button_font, WHITE, 10 + back_width / 2, back_height / 2 - 2)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                json_save_all()
+                return
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return
+            if event.type == pygame.MOUSEBUTTONDOWN and back_button.collidepoint(mouse_x, mouse_y):
+                return
+
+        pygame.display.update()
+
+
+def reset_confirm_screen():
+    """Reset Confirmation"""
+    running = True
+    while running:
+        screen.fill(BACKGROUND_COLOUR)
+
+        draw_text("Are you Sure?", font, CRIMSON, WIDTH // 2, 20)
+
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        back_color = DARK_PURPLE if back_button.collidepoint(mouse_x, mouse_y) else PURPLE
+        reset_confirm_button_color = DARK_GREEN if reset_confirm_button.collidepoint(mouse_x, mouse_y) else GREEN
+
+        pygame.draw.rect(screen, back_color, back_button)
+        pygame.draw.rect(screen, reset_confirm_button_color, reset_confirm_button)
+        draw_text("Back", button_font, WHITE, 10 + back_width / 2, back_height / 2 - 2)
+        draw_text("Yes, Reset", button_font, WHITE, WIDTH // 2, 370)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                json_save_all()
+                return
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return
+            if event.type == pygame.MOUSEBUTTONDOWN and back_button.collidepoint(mouse_x, mouse_y):
+                return
+            if event.type == pygame.MOUSEBUTTONDOWN and reset_confirm_button.collidepoint(mouse_x, mouse_y):
+                daily_reset()
+                return
+
+        pygame.display.update()
+
+
 def main_menu():
     running = True
     while running:
@@ -185,14 +255,20 @@ def main_menu():
         # Button hover effect
         play_color = DARK_GRAY if play_button.collidepoint(mouse_x, mouse_y) else GRAY
         collection_color = DARK_GRAY if collection_button.collidepoint(mouse_x, mouse_y) else GRAY
+        reset_color = DARK_GRAY if reset_button.collidepoint(mouse_x, mouse_y) else GRAY
+        open_packs_button_color = DARK_GRAY if open_packs_button.collidepoint(mouse_x, mouse_y) else GRAY
 
         # Draw buttons
         pygame.draw.rect(screen, play_color, play_button)
         pygame.draw.rect(screen, collection_color, collection_button)
+        pygame.draw.rect(screen, reset_color, reset_button)
+        pygame.draw.rect(screen, open_packs_button_color, open_packs_button)
 
         # Button text
         draw_text("Play", button_font, WHITE, WIDTH // 2, 270)
-        draw_text("Collection", button_font, WHITE, WIDTH // 2, 370)
+        draw_text("Collection", button_font, WHITE, WIDTH // 2, 360)
+        draw_text("Open Packs", button_font, WHITE, WIDTH // 2, 450)
+        draw_text("Reset", button_font, WHITE, WIDTH // 2, 540)
 
         # Event handling
         for event in pygame.event.get():
@@ -203,8 +279,12 @@ def main_menu():
                     play_screen()
                 elif collection_button.collidepoint(event.pos):
                     collection_screen()
+                elif open_packs_button.collidepoint(event.pos):
+                    open_packs_screen()
+                elif reset_button.collidepoint(event.pos):
+                    reset_confirm_screen()
 
-        pygame.display.update()  # Refresh screen
+        pygame.display.update()
 
     pygame.quit()
     json_save_all()
