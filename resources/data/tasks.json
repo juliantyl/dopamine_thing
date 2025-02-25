@@ -6,12 +6,12 @@
     },
     {
         "task": "Finish homework",
-        "checked": true,
-        "collected": true
+        "checked": false,
+        "collected": false
     },
     {
         "task": "Call mom",
-        "checked": true,
-        "collected": true
+        "checked": false,
+        "collected": false
     }
 ]

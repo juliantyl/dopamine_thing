@@ -1,5 +1,6 @@
 import pygame
 import json
+from random import randint
 
 # Initialize Pygame
 pygame.init()
@@ -24,6 +25,9 @@ CRIMSON = (94, 7, 46)
 DARK_GREEN = (6, 64, 32)
 GOLD = (214, 202, 26)
 DARK_GOLD = (143, 135, 13)
+PINK = (201, 34, 165)
+
+clock = pygame.time.Clock()
 
 # Fonts
 font = pygame.font.Font(None, 60)
@@ -200,6 +204,7 @@ def collection_screen():
 
 def open_packs_screen():
     """Packs Screen Loop"""
+
     running = True
     while running:
         screen.fill(BACKGROUND_COLOUR)
@@ -237,11 +242,124 @@ def open_packs_screen():
                 return
             if event.type == pygame.MOUSEBUTTONDOWN and open_small_button.collidepoint(mouse_x, mouse_y) and packs["small"] > 0:
                 packs["small"] -= 1
+                pack_opening(False)
             elif event.type == pygame.MOUSEBUTTONDOWN and open_rare_button.collidepoint(mouse_x, mouse_y) and packs["large"] > 0:
                 packs["large"] -= 1
+                pack_opening(True)
 
         pygame.display.update()
 
+def pack_opening(is_rare):
+    """Ideally, the pack is pre-opened as in the result is pre-calculated so if the user quits,
+    they don't lose the result"""
+    opening = True
+    speed = randint(45, 80)
+    box_list = []
+    box_rarity_list = []
+    for i in range(150):
+        box_list.append(pygame.rect.Rect(i*94, 200, 90, 90))
+        rarity = randint(1, 1000)
+        if 1 <= rarity < 4:
+            box_rarity_list.append("X")
+        elif 4 <= rarity < 34:
+            box_rarity_list.append("L")
+        elif 34 <= rarity < 154:
+            box_rarity_list.append("R")
+        elif 154 <= rarity < 281:
+            box_rarity_list.append("U")
+        else:
+            box_rarity_list.append("C")
+
+    background_box = pygame.rect.Rect(0, 180, WIDTH, 130)
+
+    while opening:
+        screen.fill(BACKGROUND_COLOUR)
+        draw_text("Opening Pack...", font, CRIMSON, WIDTH // 2, 20)
+
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        pygame.draw.rect(screen, DARK_GRAY, background_box)
+
+        for i, box in enumerate(box_list):
+            if box_rarity_list[i] == "X":
+                box_colour = PINK
+            elif box_rarity_list[i] == "L":
+                box_colour = GOLD
+            elif box_rarity_list[i] == "R":
+                box_colour = BLUE
+            elif box_rarity_list[i] == "U":
+                box_colour = GREEN
+            else:
+                box_colour = WHITE
+            pygame.draw.rect(screen, box_colour, box)
+            draw_text(f'{i}', font, BLACK, box.x + box.width//2, 220)
+
+        pygame.draw.line(screen, BLACK, (WIDTH//2, 180), (WIDTH//2, 310), 4)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                json_save_all()
+                return
+
+
+        pygame.display.update()
+
+        for box in box_list:
+            box.x -= speed
+        speed -= speed/130
+        if speed <= 0.3:
+            opening = False
+        clock.tick(30)
+
+    opened_pack = "C"
+    rarity_name = "Common"
+    for i, box in enumerate(box_list):
+        if box.x - 2 <= WIDTH // 2 < box.x + box.width + 2:
+            print(f'Box: {i}, Rarity: {box_rarity_list[i]}')
+            opened_pack = box_rarity_list[i]
+
+    if opened_pack == "C":
+        rarity_name = "Common"
+        rarity_colour = CRIMSON
+    elif opened_pack == "U":
+        rarity_name = "Uncommon"
+        rarity_colour = GREEN
+    elif opened_pack == "R":
+        rarity_name = "Rare"
+        rarity_colour = BLUE
+    elif opened_pack == "L":
+        rarity_name = "Legendary"
+        rarity_colour = GOLD
+    else:
+        rarity_name = "Ultra Rare"
+        rarity_colour = PINK
+
+
+    running = True
+    while running:
+        screen.fill(BACKGROUND_COLOUR)
+        draw_text("Pack Opened", font, CRIMSON, WIDTH // 2, 20)
+        draw_text(f'It\'s {rarity_name}!', font, rarity_colour, WIDTH // 2, 100)
+
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        reset_confirm_button_color = DARK_GREEN if reset_confirm_button.collidepoint(mouse_x, mouse_y) else GREEN
+
+        pygame.draw.rect(screen, reset_confirm_button_color, reset_confirm_button)
+        draw_text("Cool..", button_font, WHITE, WIDTH // 2, 370)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                json_save_all()
+                return
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return
+            if event.type == pygame.MOUSEBUTTONDOWN and reset_confirm_button.collidepoint(mouse_x, mouse_y):
+                return
+
+        pygame.display.update()
 
 def reset_confirm_screen():
     """Reset Confirmation"""
@@ -258,8 +376,8 @@ def reset_confirm_screen():
 
         pygame.draw.rect(screen, back_color, back_button)
         pygame.draw.rect(screen, reset_confirm_button_color, reset_confirm_button)
-        draw_text("Back", button_font, WHITE, 10 + back_width / 2, back_height / 2 - 2)
         draw_text("Yes, Reset", button_font, WHITE, WIDTH // 2, 370)
+        draw_text("Back", button_font, WHITE, 10 + back_width / 2, back_height / 2 - 2)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
