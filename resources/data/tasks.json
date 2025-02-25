@@ -1,0 +1,17 @@
+[
+    {
+        "task": "Buy groceries",
+        "checked": false,
+        "collected": false
+    },
+    {
+        "task": "Finish homework",
+        "checked": false,
+        "collected": false
+    },
+    {
+        "task": "Call mom",
+        "checked": false,
+        "collected": false
+    }
+]

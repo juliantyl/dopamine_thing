@@ -1,4 +1,5 @@
 import pygame
+import json
 
 # Initialize Pygame
 pygame.init()
@@ -34,26 +35,40 @@ collection_button = pygame.Rect((WIDTH // 2 - button_width // 2, 350), (button_w
 back_button = pygame.Rect((10, 10), (back_width, back_height))
 
 
-
-tasks = [{"task": "Buy groceries", "checked": False, "collected": False},
-         {"task": "Finish homework", "checked": False, "collected": False},
-         {"task": "Call mom", "checked": False, "collected": False},]
-packs = {"small": 1, "large": 0}
 input_font = pygame.font.Font(None, 35)
 input_text = ""
 
 # Load checkmark image
-checkmark_img = pygame.image.load("resources/checkmark_img.png")
+checkmark_img = pygame.image.load("resources/images/checkmark_img.png")
 checkmark_img = pygame.transform.scale(checkmark_img, (30, 30))
 
-not_checked_img = pygame.image.load("resources/not_checked_img.png")
+not_checked_img = pygame.image.load("resources/images/not_checked_img.png")
 not_checked_img = pygame.transform.scale(not_checked_img, (30, 30))
 
+
+def json_init(path):
+    with open(path, "r") as file:
+        data = json.load(file)
+    return data
+
+
+def json_save(path, data):
+    with open(path, "w") as file:
+        json.dump(data, file, indent=4)
+
+def json_save_all():
+    json_save("resources/data/tasks.json", tasks)
+    json_save("resources/data/packs.json", packs)
+
+
+tasks = json_init("resources/data/tasks.json")
+packs = json_init("resources/data/packs.json")
 
 def draw_text(text, font, color, x, y):
     """Render text on screen."""
     text_surface = font.render(text, True, color)
     screen.blit(text_surface, (x - text_surface.get_width() // 2, y))
+
 
 def draw_text_left(text, font, color, x, y):
     text_surface = font.render(text, True, color)
@@ -71,7 +86,7 @@ def play_screen():
         screen.fill(WHITE)
 
         # Draw title
-        draw_text("To-Do List", font, BLUE, WIDTH//2, 20)
+        draw_text("To-Do List", font, BLUE, WIDTH // 2, 20)
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
         collect_color = DARK_GREEN if collect_button.collidepoint(mouse_x, mouse_y) else GREEN
@@ -85,7 +100,7 @@ def play_screen():
                 screen.blit(checkmark_img, (50, y_offset))
             else:
                 screen.blit(not_checked_img, (50, y_offset))
-            draw_text_left(f"   {dic["task"]}", font, color, 50, y_offset)
+            draw_text_left(f' {dic["task"]}', font, color, 50, y_offset)
             y_offset += 50
 
             if dic["checked"] and not dic["collected"]:
@@ -96,12 +111,13 @@ def play_screen():
             draw_text("Collect", input_font, BLACK, WIDTH // 2, 470)
 
         # Instructions
-        draw_text("Left Click: Check | Right Click: Uncheck | ESC: Back", input_font, BLACK, WIDTH//2, HEIGHT - 40)
+        draw_text("Left Click: Check | Right Click: Uncheck | ESC: Back", input_font, BLACK, WIDTH // 2, HEIGHT - 40)
 
         # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                json_save_all()
                 return
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 return  # Go back to menu
@@ -116,7 +132,8 @@ def play_screen():
                         print("all collected!")
                 y_offset = 100
                 for i in range(len(tasks)):
-                    if 50 <= mouse_x <= WIDTH - 50 and y_offset <= mouse_y <= y_offset + 40 and tasks[i]["collected"] == False:
+                    if 50 <= mouse_x <= WIDTH - 50 and y_offset <= mouse_y <= y_offset + 40 and tasks[i][
+                        "collected"] == False:
                         if event.button == 1:
                             tasks[i]["checked"] = True
                         elif event.button == 3:
@@ -138,12 +155,12 @@ def collection_screen():
         back_color = DARK_PURPLE if back_button.collidepoint(mouse_x, mouse_y) else PURPLE
 
         pygame.draw.rect(screen, back_color, back_button)
-        draw_text("Back", button_font, WHITE, 10 + back_width/2, back_height/2 - 2)
-
+        draw_text("Back", button_font, WHITE, 10 + back_width / 2, back_height / 2 - 2)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                json_save_all()
                 return
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 return
@@ -151,6 +168,7 @@ def collection_screen():
                 return
 
         pygame.display.update()
+
 
 def main_menu():
     running = True
@@ -188,6 +206,8 @@ def main_menu():
         pygame.display.update()  # Refresh screen
 
     pygame.quit()
+    json_save_all()
+
 
 
 # Run the menu
