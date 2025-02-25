@@ -18,9 +18,12 @@ BLACK = (0, 0, 0)
 PURPLE = (59, 15, 135)
 DARK_PURPLE = (28, 7, 64)
 BACKGROUND_COLOUR = (165, 151, 189)
+GRAYED_OUT = (136, 125, 138)
 GREEN = (16, 135, 70)
 CRIMSON = (94, 7, 46)
 DARK_GREEN = (6, 64, 32)
+GOLD = (214, 202, 26)
+DARK_GOLD = (143, 135, 13)
 
 # Fonts
 font = pygame.font.Font(None, 60)
@@ -37,16 +40,24 @@ reset_button = pygame.Rect((WIDTH // 2 - button_width // 2, 520), (button_width,
 reset_confirm_button = pygame.Rect((WIDTH // 2 - button_width // 2, 350), (button_width, button_height))
 back_button = pygame.Rect((10, 10), (back_width, back_height))
 
+open_small_button = pygame.Rect((WIDTH // 3 - button_width // 2, 430), (button_width, button_height))
+open_rare_button = pygame.Rect(((2 * WIDTH) // 3 - button_width // 2, 430), (button_width, button_height))
+
 input_font = pygame.font.Font(None, 35)
 input_text = ""
 
-# Load checkmark image
+# Load images
 checkmark_img = pygame.image.load("resources/images/checkmark_img.png")
 checkmark_img = pygame.transform.scale(checkmark_img, (30, 30))
 
 not_checked_img = pygame.image.load("resources/images/not_checked_img.png")
 not_checked_img = pygame.transform.scale(not_checked_img, (30, 30))
 
+small_pack_image = pygame.image.load("resources/images/small_pack.png")
+small_pack_image = pygame.transform.scale(small_pack_image, (90, 90))
+
+rare_pack_image = pygame.image.load("resources/images/rare_pack.png")
+rare_pack_image = pygame.transform.scale(rare_pack_image, (90, 90))
 
 def json_init(path):
     with open(path, "r") as file:
@@ -197,9 +208,23 @@ def open_packs_screen():
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
         back_color = DARK_PURPLE if back_button.collidepoint(mouse_x, mouse_y) else PURPLE
+        open_color = GRAYED_OUT if packs["small"] <= 0 else (DARK_GRAY if open_small_button.collidepoint(mouse_x, mouse_y) else GRAY)
+        open_rare_color = GRAYED_OUT if packs["large"] <= 0 else (DARK_GOLD if open_rare_button.collidepoint(mouse_x, mouse_y) else GOLD)
+
+        open_font_color = GRAY if packs["small"] <= 0 else WHITE
+        open_rare_font_color = GRAY if packs["large"] <= 0 else WHITE
 
         pygame.draw.rect(screen, back_color, back_button)
+        pygame.draw.rect(screen, open_color, open_small_button)
+        pygame.draw.rect(screen, open_rare_color, open_rare_button)
         draw_text("Back", button_font, WHITE, 10 + back_width / 2, back_height / 2 - 2)
+        draw_text("Open Pack", button_font, open_font_color, WIDTH // 3 , 450)
+        draw_text("Open Rare", button_font, open_rare_font_color, (2 * WIDTH) // 3 , 450)
+        draw_text(f'x{packs["small"]}', button_font, BLACK, WIDTH // 3 + 40 , 300)
+        draw_text(f'x{packs["large"]}', button_font, BLACK, (2 * WIDTH) // 3 + 40, 300)
+
+        screen.blit(small_pack_image, (WIDTH // 3 - 70, 250))
+        screen.blit(rare_pack_image, ((2 * WIDTH) // 3 - 70, 250))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -210,6 +235,10 @@ def open_packs_screen():
                 return
             if event.type == pygame.MOUSEBUTTONDOWN and back_button.collidepoint(mouse_x, mouse_y):
                 return
+            if event.type == pygame.MOUSEBUTTONDOWN and open_small_button.collidepoint(mouse_x, mouse_y) and packs["small"] > 0:
+                packs["small"] -= 1
+            elif event.type == pygame.MOUSEBUTTONDOWN and open_rare_button.collidepoint(mouse_x, mouse_y) and packs["large"] > 0:
+                packs["large"] -= 1
 
         pygame.display.update()
 
