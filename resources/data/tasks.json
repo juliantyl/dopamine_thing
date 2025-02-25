@@ -1,17 +1,17 @@
 [
     {
-        "task": "Buy groceries",
-        "checked": true,
-        "collected": true
+        "task": "2 Leetcode Questions",
+        "checked": false,
+        "collected": false
     },
     {
-        "task": "Finish homework",
-        "checked": true,
-        "collected": true
+        "task": "Workout",
+        "checked": false,
+        "collected": false
     },
     {
-        "task": "Call mom",
-        "checked": true,
-        "collected": true
+        "task": "Apply for 1 job",
+        "checked": false,
+        "collected": false
     }
 ]

@@ -241,6 +241,38 @@ def play_screen():
 
         pygame.display.update()
 
+def inspect_screen(item):
+    """inspect individual item"""
+    running = True
+    size = 350
+    while running:
+        screen.fill(BACKGROUND_COLOUR)
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        temp_img = pygame.image.load(item["img_path"])
+        temp_img = pygame.transform.scale(temp_img, (size, size))
+
+        back_color = DARK_PURPLE if back_button.collidepoint(mouse_x, mouse_y) else PURPLE
+
+        pygame.draw.rect(screen, back_color, back_button)
+        draw_text(item["name"], font, BLACK, WIDTH // 2, 20)
+        draw_text(item["description"], button_font, BLACK, WIDTH // 2, 520)
+        draw_text("Back", button_font, WHITE, 10 + back_width / 2, back_height / 2 - 2)
+
+        screen.blit(temp_img, (WIDTH//2 - size//2, HEIGHT//2 - size//2))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                json_save_all()
+                return
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return
+            if event.type == pygame.MOUSEBUTTONDOWN and back_button.collidepoint(mouse_x, mouse_y):
+                return
+
+
+        pygame.display.update()
+
 
 def collection_screen():
     """Collection Screen Loop"""
@@ -429,6 +461,22 @@ def collection_screen():
                 rare_title_y -= SCROLL_SPEED
                 legendary_title_y -= SCROLL_SPEED
                 ultra_title_y -= SCROLL_SPEED
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                for rec in common_rects:
+                    if rec[0].collidepoint(mouse_x, mouse_y) and rec[1]["acquired"]:
+                        inspect_screen(rec[1])
+                for rec in uncommon_rects:
+                    if rec[0].collidepoint(mouse_x, mouse_y) and rec[1]["acquired"]:
+                        inspect_screen(rec[1])
+                for rec in rare_rects:
+                    if rec[0].collidepoint(mouse_x, mouse_y) and rec[1]["acquired"]:
+                        inspect_screen(rec[1])
+                for rec in legendary_rects:
+                    if rec[0].collidepoint(mouse_x, mouse_y) and rec[1]["acquired"]:
+                        inspect_screen(rec[1])
+                for rec in ultra_rects:
+                    if rec[0].collidepoint(mouse_x, mouse_y) and rec[1]["acquired"]:
+                        inspect_screen(rec[1])
 
 
         pygame.display.update()
@@ -482,7 +530,11 @@ def open_packs_screen():
         pygame.display.update()
 
 
-def calculate_result(init_speed, rarity_ls):
+def calculate_result(rarity_ls, init_speed):
+    box_no = int(round(1.37*init_speed + 4, 0))
+    print("result was calculated")
+    print(box_no, rarity_ls[box_no])
+    pick_and_unlock(rarity_ls[box_no])
     return
 
 
@@ -515,22 +567,32 @@ def pack_opening(is_rare):
     for i in range(150):
         box_list.append(pygame.rect.Rect(i*94, 200, 90, 90))
         rarity = randint(1, 1000)
-        if 1 <= rarity < 4:
-            box_rarity_list.append("X")
-        elif 4 <= rarity < 34:
-            box_rarity_list.append("L")
-        elif 34 <= rarity < 154:
-            box_rarity_list.append("R")
-        elif 154 <= rarity < 281:
-            box_rarity_list.append("U")
+        if not is_rare:
+            if 1 <= rarity < 4:
+                box_rarity_list.append("X")
+            elif 4 <= rarity < 34:
+                box_rarity_list.append("L")
+            elif 34 <= rarity < 154:
+                box_rarity_list.append("R")
+            elif 154 <= rarity < 281:
+                box_rarity_list.append("U")
+            else:
+                box_rarity_list.append("C")
         else:
-            box_rarity_list.append("C")
+            if 1 <= rarity < 31:
+                box_rarity_list.append("X")
+            elif 31 <= rarity < 101:
+                box_rarity_list.append("L")
+            elif 101 <= rarity < 351:
+                box_rarity_list.append("R")
+            else:
+                box_rarity_list.append("U")
 
     background_box = pygame.rect.Rect(0, 180, WIDTH, 130)
 
     while opening:
         screen.fill(BACKGROUND_COLOUR)
-        draw_text("Opening Pack...", font, CRIMSON, WIDTH // 2, 20)
+        draw_text("Opening Pack...", font, CRIMSON, WIDTH // 2, 60)
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
@@ -572,7 +634,7 @@ def pack_opening(is_rare):
     opened_pack = "C"
     for i, box in enumerate(box_list):
         if box.x - 2 <= WIDTH // 2 < box.x + box.width + 2:
-            print(f'Box: {i}, Rarity: {box_rarity_list[i]}')
+            print(f'Box: {i}, Rarity: {box_rarity_list[i]}, Initial Speed: {init_speed}')
             opened_pack = box_rarity_list[i]
 
     if opened_pack == "C":
@@ -598,20 +660,21 @@ def pack_opening(is_rare):
         screen.fill(BACKGROUND_COLOUR)
         draw_text("Pack Opened", font, CRIMSON, WIDTH // 2, 20)
         draw_text(f'It\'s {rarity_name}!', font, rarity_colour, WIDTH // 2, 100)
+        cool_button = pygame.rect.Rect(WIDTH // 2 - 100, 460, 200, 50)
 
         # load image
         image = pygame.image.load(unboxed_item["img_path"])
-        image = pygame.transform.scale(image, (150, 150))
-        screen.blit(image, (WIDTH // 2 - 75, 180))
+        image = pygame.transform.scale(image, (200, 200))
+        screen.blit(image, (WIDTH // 2 - 100, 160))
 
-        draw_text(f'{unboxed_item["name"]}!', font, BLACK, WIDTH // 2, 340)
+        draw_text(f'{unboxed_item["name"]}!', font, BLACK, WIDTH // 2, 400)
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
-        reset_confirm_button_color = DARK_GREEN if reset_confirm_button.collidepoint(mouse_x, mouse_y) else GREEN
+        cool_button_color = DARK_GREEN if cool_button.collidepoint(mouse_x, mouse_y) else GREEN
 
-        pygame.draw.rect(screen, reset_confirm_button_color, reset_confirm_button)
-        draw_text("Cool..", button_font, WHITE, WIDTH // 2, 370)
+        pygame.draw.rect(screen, cool_button_color, cool_button)
+        draw_text("Cool..", button_font, WHITE, WIDTH // 2, 475)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -620,7 +683,7 @@ def pack_opening(is_rare):
                 return
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 return
-            if event.type == pygame.MOUSEBUTTONDOWN and reset_confirm_button.collidepoint(mouse_x, mouse_y):
+            if event.type == pygame.MOUSEBUTTONDOWN and cool_button.collidepoint(mouse_x, mouse_y):
                 return
 
         pygame.display.update()
