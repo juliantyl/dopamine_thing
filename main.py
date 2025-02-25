@@ -128,6 +128,23 @@ def daily_reset():
         task["checked"] = False
         task["collected"] = False
 
+def collection_reset():
+    for c in commons:
+        c["acquired"] = False
+        c["count"] = 0
+    for u in uncommons:
+        u["acquired"] = False
+        u["count"] = 0
+    for r in rares:
+        r["acquired"] = False
+        r["count"] = 0
+    for l in legendaries:
+        l["acquired"] = False
+        l["count"] = 0
+    for ur in ultra_rares:
+        ur["acquired"] = False
+        ur["count"] = 0
+
 
 tasks = json_init("resources/data/tasks.json")
 packs = json_init("resources/data/packs.json")
@@ -614,15 +631,19 @@ def reset_confirm_screen():
     while running:
         screen.fill(BACKGROUND_COLOUR)
 
-        draw_text("Are you Sure?", font, CRIMSON, WIDTH // 2, 20)
 
+        reset_col_button = pygame.rect.Rect(WIDTH // 2 - 120, HEIGHT - 50, 240, 40)
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
         back_color = DARK_PURPLE if back_button.collidepoint(mouse_x, mouse_y) else PURPLE
         reset_confirm_button_color = DARK_GREEN if reset_confirm_button.collidepoint(mouse_x, mouse_y) else GREEN
+        reset_col_button_colour = DARK_GRAY if reset_col_button.collidepoint(mouse_x, mouse_y) else GRAY
 
         pygame.draw.rect(screen, back_color, back_button)
         pygame.draw.rect(screen, reset_confirm_button_color, reset_confirm_button)
+        pygame.draw.rect(screen, reset_col_button_colour, reset_col_button)
+        draw_text("Reset Collection", button_font, WHITE, WIDTH // 2, HEIGHT - 40)
+        draw_text("Are you Sure?", font, CRIMSON, WIDTH // 2, 20)
         draw_text("Yes, Reset", button_font, WHITE, WIDTH // 2, 370)
         draw_text("Back", button_font, WHITE, 10 + back_width / 2, back_height / 2 - 2)
 
@@ -637,6 +658,41 @@ def reset_confirm_screen():
                 return
             if event.type == pygame.MOUSEBUTTONDOWN and reset_confirm_button.collidepoint(mouse_x, mouse_y):
                 daily_reset()
+                return
+            if event.type == pygame.MOUSEBUTTONDOWN and reset_col_button.collidepoint(mouse_x, mouse_y):
+                reset_confirm_confirm_screen()
+                return
+
+        pygame.display.update()
+
+
+def reset_confirm_confirm_screen():
+    """Reset Confirmation for Collection"""
+    running = True
+    while running:
+        screen.fill(BACKGROUND_COLOUR)
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        back_color = DARK_PURPLE if back_button.collidepoint(mouse_x, mouse_y) else PURPLE
+        reset_confirm_button_color = DARK_GREEN if reset_confirm_button.collidepoint(mouse_x, mouse_y) else GREEN
+
+        pygame.draw.rect(screen, back_color, back_button)
+        pygame.draw.rect(screen, reset_confirm_button_color, reset_confirm_button)
+        draw_text("Are you 100% sure?", font, CRIMSON, WIDTH // 2, 20)
+        draw_text("Yes, Reset", button_font, WHITE, WIDTH // 2, 370)
+        draw_text("Back", button_font, WHITE, 10 + back_width / 2, back_height / 2 - 2)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                json_save_all()
+                return
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return
+            if event.type == pygame.MOUSEBUTTONDOWN and back_button.collidepoint(mouse_x, mouse_y):
+                return
+            if event.type == pygame.MOUSEBUTTONDOWN and reset_confirm_button.collidepoint(mouse_x, mouse_y):
+                collection_reset()
                 return
 
         pygame.display.update()

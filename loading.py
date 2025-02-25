@@ -43,4 +43,78 @@ def load_ultra_rares():
         item["loaded"] = pygame.transform.scale(img, IMG_SIZE)
     return output
 
+# FOR INITIALISING BLANK ONLY
+def initialize_commons():
+    output = []
+    for i in range(265):
+        output.append({"name": "Placeholder",
+                       "description": "placeholder description",
+                       "acquired": False,
+                       "count": 0,
+                       "img_path": f"resources/card_pics/placeholder.png",
+                       "category": "none",
+                       "loaded": None
+                       })
+    return output
+
+def initialize_uncommons():
+    output = []
+    for i in range(125):
+        output.append({"name": "Placeholder",
+                       "description": "placeholder description",
+                       "acquired": False,
+                       "count": 0,
+                       "img_path": f"resources/card_pics/placeholder.png",
+                       "category": "none",
+                       "loaded": None
+                       })
+    return output
+
+def initialize_rares():
+    output = []
+    for i in range(70):
+        output.append({"name": "Placeholder",
+                       "description": "placeholder description",
+                       "acquired": False,
+                       "count": 0,
+                       "img_path": f"resources/card_pics/placeholder.png",
+                       "category": "none",
+                       "loaded": None
+                       })
+    return output
+
+def initialize_legendaries():
+    output = []
+    for i in range(25):
+        output.append({"name": "Placeholder",
+                       "description": "placeholder description",
+                       "acquired": False,
+                       "count": 0,
+                       "img_path": f"resources/card_pics/placeholder.png",
+                       "category": "none",
+                       "loaded": None
+                       })
+    return output
+
+def initialize_ultra_rares():
+    output = []
+    for i in range(15):
+        output.append({"name": "Placeholder",
+                       "description": "placeholder description",
+                       "acquired": False,
+                       "count": 0,
+                       "img_path": f"resources/card_pics/placeholder.png",
+                       "category": "none",
+                       "loaded": None
+                       })
+    return output
+
+def initialize():
+    commons = initialize_commons()
+    uncommons = initialize_uncommons()
+    rares = initialize_rares()
+    legendaries = initialize_legendaries()
+    ultra_rares = initialize_ultra_rares()
+    return commons, uncommons, rares, legendaries, ultra_rares
+
 
